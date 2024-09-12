@@ -3,6 +3,8 @@ import tasks from "./data/mock.js";
 
 const app = express();
 
+// req의 contentType이 app ~ json일 경우 body 파싱 수 js 객체로 만들어줌
+app.use(express.json());
 app.set("port", process.env.PORT || 3000);
 
 app.get("/tasks", (req, res) => {
@@ -16,8 +18,8 @@ app.get("/tasks", (req, res) => {
 
   const compareFn =
     sort === "oldest"
-      ? (a, b) => a.createAt - b.createAt
-      : (a, b) => b.createAt - a.createAt;
+      ? (a, b) => a.createdAt - b.createdAt
+      : (a, b) => b.createdAt - a.createdAt;
 
   let newTasks = tasks.sort(compareFn);
 
@@ -34,6 +36,19 @@ app.get("/tasks/:id", (req, res) => {
 
   if (task) res.send(task);
   else res.status(404).send({ message: "Cannot find given id. " });
+});
+
+app.post("/tasks", (req, res) => {
+  const newTasks = req.body;
+  // 추후 DB로 전환 예정
+  const ids = tasks.map((task) => task.id);
+  newTasks.id = Math.max(...ids) + 1;
+  newTasks.isComplete = false;
+  newTasks.createdAt = new Date();
+  newTasks.updatedAt = new Date();
+
+  tasks.push(newTasks);
+  res.status(201).send(tasks);
 });
 
 app.listen(app.get("port"), () => {
