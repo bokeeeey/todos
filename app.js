@@ -28,6 +28,14 @@ app.get("/tasks", (req, res) => {
   res.send(newTasks);
 });
 
+app.get("/tasks/:id", (req, res) => {
+  const id = Number(req.params.id);
+  const task = tasks.find((task) => task.id === id);
+
+  if (task) res.send(task);
+  else res.status(404).send({ message: "Cannot find given id. " });
+});
+
 app.listen(app.get("port"), () => {
   console.log(app.get("port"), "Server Started!");
 });
