@@ -15,3 +15,16 @@ Content-Type: application/json
 {
   "title": "호텔 예약하기"
 }
+
+###
+
+PATCH http://localhost:3000/tasks/1
+Content-Type: application/json
+
+{
+  "isComplete": true
+}
+
+###
+
+DELETE http://localhost:3000/tasks/1
