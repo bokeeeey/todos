@@ -1,5 +1,9 @@
 import express from "express";
+import mongoose from "mongoose";
 import tasks from "./data/mock.js";
+import { DATABASE_URL } from "./env.js";
+
+mongoose.connect(DATABASE_URL).then(() => console.log("Connented to DB"));
 
 const app = express();
 
