@@ -7,40 +7,65 @@ import Task from "./models/Task.js";
 mongoose.connect(DATABASE_URL).then(() => console.log("Connented to DB"));
 
 const app = express();
-
 // req의 contentType이 app ~ json일 경우 body 파싱 수 js 객체로 만들어줌
 app.use(express.json());
+
+function asyncHandler(handler) {
+  return async function (req, res) {
+    try {
+      await handler(req, res);
+    } catch (error) {
+      if (error.name === "ValidationError") {
+        res.status(400).send({ message: error.message });
+      } else if (error.name === "CastError") {
+        res.status(404).send({ message: "Cannot find given id." });
+      } else {
+        res.status(500).send({ message: error.message });
+      }
+    }
+  };
+}
+
 app.set("port", process.env.PORT || 3000);
 
-app.get("/tasks", async (req, res) => {
-  /**
-   * 쿼리 파라미터
-   * - sort: "oldest"인 경우 오래된 태스크 기준, 나머지 경우 새로운 태스크 기준
-   * - count: 태스크 개수
-   */
-  const sort = req.query.sort;
-  const count = Number(req.query.count);
+app.get(
+  "/tasks",
+  asyncHandler(async (req, res) => {
+    /**
+     * 쿼리 파라미터
+     * - sort: "oldest"인 경우 오래된 태스크 기준, 나머지 경우 새로운 태스크 기준
+     * - count: 태스크 개수
+     */
+    const sort = req.query.sort;
+    const count = Number(req.query.count);
 
-  const sortOption = { createdAt: sort === "olderst" ? "asc" : "desc" };
+    const sortOption = { createdAt: sort === "olderst" ? "asc" : "desc" };
 
-  const tasks = await Task.find().sort(sortOption).limit(count);
+    const tasks = await Task.find().sort(sortOption).limit(count);
 
-  res.send(tasks);
-});
+    res.send(tasks);
+  })
+);
 
-app.get("/tasks/:id", async (req, res) => {
-  const id = req.params.id;
-  const task = await Task.findById(id);
+app.get(
+  "/tasks/:id",
+  asyncHandler(async (req, res) => {
+    const id = req.params.id;
+    const task = await Task.findById(id);
 
-  if (task) res.send(task);
-  else res.status(404).send({ message: "Cannot find given id. " });
-});
+    if (task) res.send(task);
+    else res.status(404).send({ message: "Cannot find given id. " });
+  })
+);
 
-app.post("/tasks", async (req, res) => {
-  const newTasks = await Task.create(req.body);
+app.post(
+  "/tasks",
+  asyncHandler(async (req, res) => {
+    const newTasks = await Task.create(req.body);
 
-  res.status(201).send(newTasks);
-});
+    res.status(201).send(newTasks);
+  })
+);
 
 app.patch("/tasks/:id", (req, res) => {
   const id = Number(req.params.id);

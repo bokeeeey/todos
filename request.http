@@ -13,8 +13,8 @@ POST http://localhost:3000/tasks
 Content-Type: application/json
 
 {
-  "title": "포트폴리오 완성",
-  "description": "9월 안에 완성하기"
+  "title": "산책",
+  "description": "운동하기"
 }
 
 ###
