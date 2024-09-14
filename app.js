@@ -1,6 +1,5 @@
 import express from "express";
 import mongoose from "mongoose";
-import mockTasks from "./data/mock.js";
 import { DATABASE_URL } from "./env.js";
 import Task from "./models/Task.js";
 
@@ -9,6 +8,7 @@ mongoose.connect(DATABASE_URL).then(() => console.log("Connented to DB"));
 const app = express();
 // req의 contentType이 app ~ json일 경우 body 파싱 수 js 객체로 만들어줌
 app.use(express.json());
+app.set("port", process.env.PORT || 3000);
 
 function asyncHandler(handler) {
   return async function (req, res) {
@@ -25,8 +25,6 @@ function asyncHandler(handler) {
     }
   };
 }
-
-app.set("port", process.env.PORT || 3000);
 
 app.get(
   "/tasks",
@@ -67,29 +65,33 @@ app.post(
   })
 );
 
-app.patch("/tasks/:id", (req, res) => {
-  const id = Number(req.params.id);
-  const task = mockTasks.find((task) => task.id === id);
+app.patch(
+  "/tasks/:id",
+  asyncHandler(async (req, res) => {
+    const id = req.params.id;
+    const task = await Task.findById(id);
 
-  if (task) {
-    Object.keys(req.body).forEach((key) => {
-      task[key] = req.body[key];
-    });
-    task.updatedAt = new Date();
+    if (task) {
+      Object.keys(req.body).forEach((key) => {
+        task[key] = req.body[key];
+      });
+      await task.save();
 
-    res.send(task);
-  } else res.status(404).send({ message: "Cannot find given id. " });
-});
+      res.send(task);
+    } else res.status(404).send({ message: "Cannot find given id. " });
+  })
+);
 
-app.delete("/tasks/:id", (req, res) => {
-  const id = Number(req.params.id);
-  const idx = mockTasks.findIndex((task) => task.id === id);
+app.delete(
+  "/tasks/:id",
+  asyncHandler(async (req, res) => {
+    const id = req.params.id;
+    const task = await Task.findByIdAndDelete(id);
 
-  if (idx >= 0) {
-    mockTasks.splice(idx, 1);
-    res.sendStatus(204);
-  } else res.status(404).send({ message: "Cannot find given id. " });
-});
+    if (task) res.sendStatus(204);
+    else res.status(404).send({ message: "Cannot find given id. " });
+  })
+);
 
 app.listen(app.get("port"), () => {
   console.log(app.get("port"), "Server Started!");
