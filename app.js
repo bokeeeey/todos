@@ -36,17 +36,10 @@ app.get("/tasks/:id", async (req, res) => {
   else res.status(404).send({ message: "Cannot find given id. " });
 });
 
-app.post("/tasks", (req, res) => {
-  const newTasks = req.body;
-  // 추후 DB로 전환 예정
-  const ids = mockTasks.map((task) => task.id);
-  newTasks.id = Math.max(...ids) + 1;
-  newTasks.isComplete = false;
-  newTasks.createdAt = new Date();
-  newTasks.updatedAt = new Date();
+app.post("/tasks", async (req, res) => {
+  const newTasks = await Task.create(req.body);
 
-  mockTasks.push(newTasks);
-  res.status(201).send(mockTasks);
+  res.status(201).send(newTasks);
 });
 
 app.patch("/tasks/:id", (req, res) => {
