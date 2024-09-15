@@ -1,11 +1,22 @@
+import cors from "cors";
+import * as dotenv from "dotenv";
 import express from "express";
 import mongoose from "mongoose";
-import { DATABASE_URL } from "./env.js";
 import Task from "./models/Task.js";
 
-mongoose.connect(DATABASE_URL).then(() => console.log("Connented to DB"));
+dotenv.config();
+
+mongoose
+  .connect(process.env.DATABASE_URL)
+  .then(() => console.log("Connented to DB"));
 
 const app = express();
+
+const corsOptions = {
+  origin: ["http://localhost:3000/"],
+};
+
+app.use(cors(corsOptions));
 // req의 contentType이 app ~ json일 경우 body 파싱 수 js 객체로 만들어줌
 app.use(express.json());
 app.set("port", process.env.PORT || 3000);
