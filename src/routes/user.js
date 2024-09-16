@@ -54,3 +54,5 @@ function adminOnly(req, res, next) {
 }
 
 app.use("/users", adminOnly, userRouter);
+
+export default userRouter;
