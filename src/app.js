@@ -3,7 +3,8 @@ import * as dotenv from "dotenv";
 import express from "express";
 import mongoose from "mongoose";
 import Task from "../models/Task.js";
-// import userRouter from "./routes/user.js";
+import always from "./middleware/always.js";
+import userRouter from "./routes/user.js";
 
 dotenv.config();
 
@@ -12,6 +13,9 @@ mongoose
   .then(() => console.log("Connented to DB"));
 
 const app = express();
+
+app.use(always);
+app.use("/users", userRouter);
 
 const corsOptions = {
   origin: ["http://localhost:3000/"],
