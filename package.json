@@ -11,8 +11,8 @@
   },
   "type": "module",
   "scripts": {
-    "dev": "nodemon app.js",
-    "start": "node app.js",
+    "dev": "nodemon src/auth/index.js",
+    "start": "node src/auth/index.js",
     "seed": "node data/seed.js"
   }
 }
